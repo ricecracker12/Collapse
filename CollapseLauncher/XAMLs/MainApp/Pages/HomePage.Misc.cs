@@ -12,6 +12,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using static CollapseLauncher.Dialogs.SimpleDialogs;
 using static Hi3Helper.Data.ConverterTool;
@@ -49,7 +50,7 @@ public partial class HomePage
         }
     }
     
-    private async void CollapsePrioControl(Process proc)
+    private async void CollapsePrioControl(Func<CancellationToken, Task> processAwaiter)
     {
         try
         {
@@ -62,7 +63,7 @@ public partial class HomePage
             }
 
             await CarouselStopScroll();
-            await proc.WaitForExitAsync();
+            await processAwaiter(CancellationToken.None);
 
             using (Process collapseProcess = Process.GetCurrentProcess())
             {
@@ -132,11 +133,20 @@ public partial class HomePage
                 return;
             }
 
-            // Assign the priority to the process and write a log (just for displaying any info)
-            if (!gameProp.TrySetGameProcessPriority(processId, Hi3Helper.Win32.Native.Enums.PriorityClass.ABOVE_NORMAL_PRIORITY_CLASS))
+            var result =
+                gameProp.TrySetGameProcessPriority(processId,
+                                                   Hi3Helper.Win32.Native.Enums.PriorityClass
+                                                            .ABOVE_NORMAL_PRIORITY_CLASS);
+            var lastError = System.Runtime.InteropServices.Marshal.GetLastWin32Error();
+            
+            if (!result && lastError != 0)
             {
-                throw new Win32Exception();
+                LogWriteLine($"[HomePage::GameBoost_Invoke] Failed to boost game process {processName} [{processId}] " +
+                             $"priority to Above Normal! Last Win32 Error: {lastError}",
+                             LogType.Error, true);
+                throw new Win32Exception(lastError);
             }
+
             GameBoostInvokeTryCount = 0;
             LogWriteLine($"[HomePage::GameBoost_Invoke] Game process {processName} " +
                          $"[{processId}] priority is boosted to above normal!", LogType.Warning, true);

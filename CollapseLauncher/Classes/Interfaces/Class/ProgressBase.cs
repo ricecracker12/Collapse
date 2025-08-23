@@ -6,6 +6,7 @@ using CollapseLauncher.Helper.StreamUtility;
 using CommunityToolkit.WinUI;
 using Hi3Helper;
 using Hi3Helper.Data;
+using Hi3Helper.EncTool;
 using Hi3Helper.Http;
 using Hi3Helper.Preset;
 using Hi3Helper.SentryHelper;
@@ -400,7 +401,6 @@ namespace CollapseLauncher.Interfaces
 
             Interlocked.Exchange(ref _riLastTick, Environment.TickCount);
             return true;
-
         }
         #endregion
 
@@ -684,9 +684,6 @@ namespace CollapseLauncher.Interfaces
 
         protected virtual void ResetStatusAndProgress()
         {
-            // Reset the cancellation token
-            Token = new CancellationTokenSourceWrapper();
-
             // Reset RepairAssetProperty list
             AssetEntry!.Clear();
 
@@ -785,7 +782,7 @@ namespace CollapseLauncher.Interfaces
         protected async Task FetchBilibiliSdk(CancellationToken token)
         {
             // Check whether the sdk is not null, 
-            if (GameVersionManager.GameApiProp.data?.sdk == null) return;
+            if (GameVersionManager.GameApiProp?.data?.sdk == null) return;
 
             // Set total activity string as "Loading Indexes..."
             Status.ActivityStatus = Lang!._GameRepairPage!.Status2;
@@ -796,10 +793,10 @@ namespace CollapseLauncher.Interfaces
             string?                          url            = GameVersionManager.GameApiProp.data.sdk.path;
             if (url == null) throw new NullReferenceException();
 
-            HttpResponseMessage httpResponse = await FallbackCDNUtil.GetURLHttpResponse(url, token);
-            await using BridgedNetworkStream httpStream     = await FallbackCDNUtil.GetHttpStreamFromResponse(httpResponse, token);
-            await using MemoryStream         bufferedStream = await BufferSourceStreamToMemoryStream(httpStream, token);
-            using ZipArchive                 zip            = new ZipArchive(bufferedStream, ZipArchiveMode.Read, true);
+            HttpResponseMessage      httpResponse   = await FallbackCDNUtil.GetURLHttpResponse(url, token);
+            await using Stream       httpStream     = (await httpResponse.TryGetCachedStreamFrom(token)).Stream;
+            await using MemoryStream bufferedStream = await BufferSourceStreamToMemoryStream(httpStream, token);
+            using ZipArchive         zip            = new ZipArchive(bufferedStream, ZipArchiveMode.Read, true);
             // Iterate the Zip Entry
             foreach (var entry in zip.Entries)
             {

@@ -87,7 +87,7 @@
     "CopyClipboardBtn1": "复制全部到剪贴板",
     "CopyClipboardBtn2": "已复制到剪贴板！",
     "GoBackPageBtn1": "返回上一页",
-    
+
     "CustomBackground_NotFound": "自定义背景文件丢失！将使用默认图像",
     "CustomBackground_RegionalTag": "区服背景",
     "CustomBackground_GlobalTag": "全局背景"
@@ -436,6 +436,7 @@
     "Debug_SendRemoteCrashData": "向开发者发送匿名崩溃报告",
     "Debug_SendRemoteCrashData_EnvVarDisablement": "由于环境变量“DISABLE_SENTRY”被设为 true，该设置已被禁用。",
     "Debug_MultipleInstance": "允许开启多个 Collapse",
+    "Debug_CustomDialogBtn": "[调试] 生成自定义对话框",
 
     "ChangeRegionWarning_Toggle": "显示区服更改警告",
     "ChangeRegionInstant_Toggle": "选择后立即更改区服",
@@ -693,8 +694,49 @@
     "Database_ValidationChecking": "验证设置中……",
     "Database_Placeholder_DbUserIdTextBox": "GUID 示例：ed6e8048-e3a0-4983-bd56-ad19956c701f",
     "Database_Placeholder_DbTokenPasswordBox": "在这里输入您的身份验证令牌",
-    
-    "SearchPlaceholder": "输入以搜索……"
+
+    "SearchPlaceholder": "输入以搜索……",
+
+    "HttpCache_Title": "HTTP 缓存设置",
+    "HttpCacheModeToggle": "缓存模式",
+    "HttpCacheModeToggle_Tooltip1": "是否在向 CDN 发起 HTTP 请求时启用网络缓存。这可能有助于缩短某些功能的加载时间。",
+    "HttpCacheModeToggle_Tooltip2": "启用此功能后，将采用两种缓存方法：",
+    "HttpCacheModeToggle_Tooltip3": "附注：",
+    "HttpCacheModeToggle_Tooltip4": "如果您遇到一些问题或启动器行为异常，可能需要通过点击",
+    "HttpCacheModeToggle_Tooltip5": "按钮来清除缓存。",
+    "HttpCacheMode_Cat1": "基于过期时间的缓存",
+    "HttpCacheMode_Cat2": "基于 ETag/Hash 的缓存",
+    "HttpCacheAggressiveModeToggle": "激进缓存模式",
+    "HttpCacheAggressiveModeToggle_Tooltip1": "启用此功能后，启动器将根据",
+    "HttpCacheAggressiveModeToggle_Tooltip2": "定义的时长进行缓存操作。",
+    "HttpCacheAggressiveModeToggle_Tooltip3": "和",
+    "HttpCacheAggressiveModeToggle_Tooltip4": "方法将被自动忽略。",
+    "HttpCacheAggressiveModeToggle_Tooltip5": "要使用此功能，您必须先启用",
+    "HttpCacheAggressiveModeToggle_Tooltip6": "。",
+    "HttpCacheMaxExpireTimeBox": "最大过期时间",
+    "HttpCacheMaxExpireTimeBox_TooltipDefaultValue": "10 分钟",
+    "HttpCacheMaxExpireTimeBox_Tooltip1": "确定响应允许的最大缓存时间（分钟）。",
+    "HttpCacheMaxExpireTimeBoxMinutes": "分钟",
+    "HttpCacheClearButton": "清除网络缓存",
+    "HttpCacheClearedText": "缓存已清除！",
+
+    "Plugin_LoadedInfoTitle": "已加载的插件信息",
+    "Plugin_OpenManagerBtn": "打开插件管理菜单",
+    "Plugin_AuthorBy": "作者 {0}",
+    "Plugin_LoadedInfoDesc": "描述",
+    "Plugin_LoadedInfoPluginVer": "插件版本",
+    "Plugin_LoadedInfoInterfaceVer": "接口版本",
+    "Plugin_LoadedInfoCreationDate": "创建日期",
+    "Plugin_LoadedInfoMainLibLocation": "主程序库位置",
+    "Plugin_LoadedInfoLoadedPresets": "加载的预设",
+    "Plugin_LoadedInfoClipboardCopied": "信息已复制！",
+    "Plugin_PluginInfoNameUnknown": "未知",
+    "Plugin_PluginInfoDescUnknown": "无描述",
+    "Plugin_PluginInfoAuthorUnknown": "未知作者"
+  },
+
+  "_PluginManagerPage": {
+    "PageTitle": "插件管理菜单"
   },
 
   "_Misc": {
@@ -717,6 +759,7 @@
     "EverythingIsOkay": "一切正常！",
     "Cancel": "取消",
     "Close": "关闭",
+    "CloseOverlay": "关闭叠加层",
     "UseCurrentDir": "使用当前目录",
     "UseDefaultDir": "使用默认目录",
     "MoveToDifferentDir": "移动到不同的目录",
@@ -794,6 +837,7 @@
     "CDNDescription_Bitbucket": "由 Bitbucket 提供支持的官方（主）仓库镜像。",
     "CDNDescription_GitLab": "由 GitLab 提供支持的官方（主）仓库镜像。",
     "CDNDescription_Coding": "由 Coding 提供支持的官方（主）仓库镜像。",
+    "CDNDescription_CNB": "由 CNB 提供支持的官方（主）仓库镜像。",
 
     "LocateExecutable": "定位可执行文件",
     "OpenDownloadPage": "打开下载界面",
@@ -1094,7 +1138,13 @@
     "UserFeedback_SubmitBtn": "提交您的反馈",
     "UserFeedback_SubmitBtn_Processing": "处理中…",
     "UserFeedback_SubmitBtn_Completed": "完成！",
-    "UserFeedback_SubmitBtn_Cancelled": "已取消！"
+    "UserFeedback_SubmitBtn_Cancelled": "已取消！",
+
+    "PluginManagerUpdateAvailableTitle": "您有 {0} 个插件已准备好更新！",
+    "PluginManagerUpdateAvailableSubtitle1": "目前有 {0} 个插件可更新。启动器需要重新启动以应用这些插件的更新：",
+    "PluginManagerUpdateAvailableSubtitle2": "您希望重新启动启动器吗？",
+    "PluginManagerUpdateAvailableCancelBtn": "稍后",
+    "PluginManagerUpdateAvailableConfirmBtn": "现在就重启！"
   },
 
   "_FileMigrationProcess": {
@@ -1334,7 +1384,7 @@
     "Graphics_DlssQuality": "NVIDIA DLSS",
     "Graphics_SelfShadow": "地图探索中角色实时阴影",
     "Graphics_HalfResTransparent": "半分辨率透明",
-    
+
     "Graphics_DLSS_UHP": "超高性能",
     "Graphics_DLSS_Perf": "性能",
     "Graphics_DLSS_Balanced": "平衡",

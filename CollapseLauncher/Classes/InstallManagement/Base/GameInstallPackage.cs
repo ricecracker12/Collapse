@@ -1,7 +1,9 @@
-﻿using Hi3Helper;
+﻿using CollapseLauncher.Helper.StreamUtility;
+using Hi3Helper;
 using Hi3Helper.Data;
 using Hi3Helper.EncTool;
 using Hi3Helper.Http.Legacy;
+using Hi3Helper.Plugin.Core.Management;
 using Hi3Helper.Preset;
 using Hi3Helper.SentryHelper;
 using System;
@@ -124,7 +126,7 @@ namespace CollapseLauncher.InstallManager
         public Stream GetReadStream(int count)
         {
             // Get the file info of the single file
-            FileInfo fileInfo = new FileInfo(PathOutput!);
+            FileInfo fileInfo = new FileInfo(PathOutput!).ResolveSymlink();
             // Check if the file exist and the length is equal to the size
             if (fileInfo.Exists && fileInfo.Length == Size)
             {

@@ -2,6 +2,7 @@
 using CollapseLauncher.Helper.Update;
 using CommunityToolkit.Labs.WinUI.Labs.MarkdownTextBlock;
 using Hi3Helper;
+using Hi3Helper.Plugin.Core.Management;
 using Hi3Helper.SentryHelper;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -11,6 +12,8 @@ using System.Threading.Tasks;
 using static CollapseLauncher.Dialogs.SimpleDialogs;
 using static Hi3Helper.Locale;
 using static Hi3Helper.Shared.Region.LauncherConfig;
+using System.IO;
+
 
 #if !USEVELOPACK
 using Squirrel;
@@ -48,7 +51,7 @@ namespace CollapseLauncher.Pages
             if (LauncherUpdateHelper.AppUpdateVersionProp == null)
                 throw new NullReferenceException("New version property in LauncherUpdateHelper.AppUpdateVersionProp should haven't be null!");
 
-            if (LauncherUpdateHelper.AppUpdateVersionProp.Version != null)
+            if (LauncherUpdateHelper.AppUpdateVersionProp.Version.HasValue)
             {
                     GameVersion newUpdateVersion = LauncherUpdateHelper.AppUpdateVersionProp.Version.Value;
 
@@ -167,7 +170,7 @@ namespace CollapseLauncher.Pages
 
             try
             {
-                await using BridgedNetworkStream networkStream = await FallbackCDNUtil.TryGetCDNFallbackStream($"changelog_{(IsPreview ? "preview" : "stable")}.md", _tokenSource.Token);
+                await using Stream networkStream = await FallbackCDNUtil.TryGetCDNFallbackStream($"changelog_{(IsPreview ? "preview" : "stable")}.md", _tokenSource.Token);
                 ReleaseNotesBox.Text = await networkStream.ReadAsStringAsync(_tokenSource.Token);
             }
             catch (Exception ex)

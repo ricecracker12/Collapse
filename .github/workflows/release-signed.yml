@@ -8,9 +8,6 @@ on:
 env:
  BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
  SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
- DOTNET_INSTALL_DIR: '.\.dotnet' 
- DOTNET_VERSION: '10.0.1xx'
- DOTNET_QUALITY: 'preview'
  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
  SIGNPATH_ARTIFACT_SLUG: 'initial' # change this to 'aot-release' when releasing with AOT or 'initial' for normal release
  BUILD_PROFILE_PREVIEW: 'Publish-PreviewRelease'
@@ -33,6 +30,7 @@ jobs:
       PUBLISH_PROFILE: ""
       SIGNING_POLICY_SLUG: ""
       VERSION: ""
+      PRODUCT_VERSION: ""
       Platform: ${{ matrix.platform }}
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
@@ -69,6 +67,14 @@ jobs:
       uses: actions/checkout@v4
       with:
         submodules: recursive
+        
+    - name: 'Preparing Environment Variables'
+      if: ${{ github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
+      run: |
+        $env = Get-Content env.json | ConvertFrom-Json
+        foreach ($prop in $env.PSObject.Properties) {
+          echo "$($prop.Name)=$($prop.Value)" >> $env:GITHUB_ENV
+        }
 
     - name: Install .NET
       uses: actions/setup-dotnet@v4
@@ -124,7 +130,7 @@ jobs:
           For core maintainers, go to SignPath to sign the build!
 
     - name: Sign Build Artifact with SignPath
-      uses: signpath/github-action-submit-signing-request@v1.1
+      uses: signpath/github-action-submit-signing-request@v1.3
       with:
         api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
         organization-id: ${{ secrets.SIGNPATH_ORG_ID }}
@@ -132,12 +138,13 @@ jobs:
         signing-policy-slug: ${{ env.SIGNING_POLICY_SLUG }}
         github-artifact-id: '${{ steps.upload-unsigned-artifact.outputs.artifact-id }}'
         wait-for-completion: true
-        output-artifact-directory: '/SignedArtifact/'
+        wait-for-completion-timeout-in-seconds: 1200
+        output-artifact-directory: '${{ runner.temp }}/SignedArtifact/'
         artifact-configuration-slug: ${{ env.SIGNPATH_ARTIFACT_SLUG}}
 
     - name: Process Signed Build
       run: |
-        $buildDir = '.\SignedArtifact\BuildArtifact-${{ env.VERSION }}'
+        $buildDir = '${{ runner.temp }}\SignedArtifact\BuildArtifact-${{ env.VERSION }}'
         echo "Re-checking build version"
         $versionFinal = ((Get-Item $buildDir\CollapseLauncher.exe).VersionInfo.FileVersion)
         if ($versionFinal.EndsWith(".0")) {
@@ -148,21 +155,23 @@ jobs:
 
     - name: Verify Signed Artifacts
       run: |
-        $buildDir = '.\SignedArtifact\BuildArtifact-${{ env.VERSION }}'
+        $buildDir = '${{ runner.temp }}\SignedArtifact\BuildArtifact-${{ env.VERSION }}'
         $files = Get-ChildItem -Path "$buildDir" -Recurse -Include "*.exe","*.dll"
         foreach ($file in $files) {
           $signature = Get-AuthenticodeSignature $file.FullName
           if ($signature.Status -ne "Valid") {
             echo "::error::Invalid signature on $($file.Name): $($signature.Status)"
           }
-          echo "✓ $($file.Name): $($signature.SignerCertificate.Subject)"
+          else {
+            echo "::notice::✓ $($file.Name): $($signature.SignerCertificate.Subject)"
+          }
         }
 
     - name: Re-upload Signed Artifact to GitHub
       uses: actions/upload-artifact@v4
       with:
           name: SIGNED_collapse-v${{ env.VERSION }}_${{ env.SIGNING_POLICY_SLUG }}-${{ env.CONFIGURATION_STRATEGY }}_${{ env.PUBLISH_PROFILE }}
-          path: ./SignedArtifact
+          path: ${{ runner.temp }}/SignedArtifact
           compression-level: 9
 
     - name: Final Notify Discord
@@ -186,6 +195,27 @@ jobs:
         apps: sentry-cli
 
     - name: Upload Debug artifact to Sentry
+      continue-on-error: true
+      shell: pwsh
       run: |
-        sentry-cli debug-files upload --org collapse --project collapse-launcher --include-sources '.\SignedArtifact\BuildArtifact-${{ env.VERSION }}'
-
+        sentry-cli debug-files upload --org collapse --project collapse-launcher --include-sources '${{ runner.temp }}\SignedArtifact\BuildArtifact-${{ env.VERSION }}'
+        
+    - name: Set release version in Sentry
+      shell: pwsh
+      continue-on-error: true
+      run: |
+            $exePath = "${{ runner.temp }}\SignedArtifact\BuildArtifact-${{ env.VERSION }}\CollapseLauncher.exe"
+            if (Test-Path $exePath) {
+                $version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($exePath).ProductVersion
+                if ($version) {
+                    sentry-cli releases new --org collapse --project collapse-launcher $version
+                    sentry-cli releases set-commits --auto $version
+                    sentry-cli releases finalize $version
+                }
+                else {
+                    Write-Warning "No product version found in $exePath"
+                }
+            }
+            else {
+                Write-Error "File not found: $exePath"
+            }

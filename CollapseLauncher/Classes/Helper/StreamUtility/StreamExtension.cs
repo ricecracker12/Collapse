@@ -1,6 +1,7 @@
 ﻿using Hi3Helper;
 using Hi3Helper.Data;
 using Hi3Helper.SentryHelper;
+using Hi3Helper.Win32.ManagedTools;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -169,6 +170,25 @@ namespace CollapseLauncher.Helper.StreamUtility
             }
         }
 
+        internal static bool TryDeleteDirectory(this DirectoryInfo directoryPath, bool isRecursive = false, bool throwIfFailed = false)
+        {
+            try
+            {
+                if (directoryPath.Exists)
+                    directoryPath.Delete(isRecursive);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                if (throwIfFailed)
+                    throw;
+
+                Logger.LogWriteLine($"Failed to delete directory: {directoryPath.FullName}\r\n{ex}", LogType.Error, true);
+                return false;
+            }
+        }
+
         internal static string NormalizePath(this string path)
             => ConverterTool.NormalizePath(path);
 
@@ -223,6 +243,13 @@ namespace CollapseLauncher.Helper.StreamUtility
             return match.Success ? match.Groups["path"].Value : path;
         }
 
+        
+        /// <summary>
+        /// Strips the alternate data stream from a file path.
+        /// <para> e.g. "C:\path\to\file.txt:stream" becomes "C:\path\to\file.txt". </para>
+        /// </summary>
+        /// <param name="fileInfo">FileInfo to be stripped</param>
+        /// <returns>FileInfo instance with ADS stripped if detected, returns original if the input doesn't use ADS or there's an error with the process.</returns>
         public static FileInfo StripAlternateDataStream(this FileInfo fileInfo)
         {
             try
@@ -241,7 +268,70 @@ namespace CollapseLauncher.Helper.StreamUtility
                 return fileInfo; // Return original FileInfo if any error occurs
             }
         }
+
+        
+        /// <summary>
+        /// Resolves the symlink of a FileInfo instance.
+        /// <para>Detects if the file has ReparsePoint attribute and resolve the target file path.</para>
+        /// </summary>
+        /// <param name="fileInfo">FileInfo to be resolved.</param>
+        /// <returns>Instance of FileInfo to the resolved symlink file.</returns>
+        /// <exception cref="FileNotFoundException">Target file of the symlink does not exist.</exception>
+        public static FileInfo ResolveSymlink(this FileInfo fileInfo)
+        {
+            if (!fileInfo.Attributes.HasFlag(FileAttributes.ReparsePoint))
+                return fileInfo;
+
+            try
+            {
+                var target = new FileInfo(fileInfo.LinkTarget!);
+                if (!target.Exists)
+                {
+                    throw new
+                        FileNotFoundException($"[StreamExtension] Target symlink {target.FullName} for {fileInfo.FullName} does not exist.");
+                }
+
+                Logger.LogWriteLine($"[StreamExtension] Resolved symlink: {fileInfo.FullName} -> {target.FullName}",
+                                    LogType.Default, true);
+                return target;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWriteLine($"[StreamExtension] Failed to resolve symlink for {fileInfo.FullName}\r\n{ex}",
+                                    LogType.Error, true);
+                SentryHelper.ExceptionHandler(ex);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Deletes the directory if it is empty.
+        /// </summary>
+        /// <param name="dir">The directory to remove.</param>
+        /// <param name="recursive">Whether to remove all possibly empty directories recursively.</param>
+        public static void DeleteEmptyDirectory(this string dir, bool recursive = false)
+            => new DirectoryInfo(dir).DeleteEmptyDirectory(recursive);
+
+        /// <summary>
+        /// Deletes the directory if it is empty.
+        /// </summary>
+        /// <param name="dir">The directory to remove.</param>
+        /// <param name="recursive">Whether to remove all possibly empty directories recursively.</param>
+        public static void DeleteEmptyDirectory(this DirectoryInfo dir, bool recursive = false)
+        {
+            if (recursive)
+            {
+                foreach (DirectoryInfo childDir in dir.EnumerateDirectories("*", SearchOption.TopDirectoryOnly))
+                {
+                    DeleteEmptyDirectory(childDir);
+                }
+            }
+
+            FindFiles.TryIsDirectoryEmpty(dir.FullName, out bool isEmpty);
+            if (isEmpty)
+            {
+                dir.Delete(true);
+            }
+        }
     }
-    
-    
 }

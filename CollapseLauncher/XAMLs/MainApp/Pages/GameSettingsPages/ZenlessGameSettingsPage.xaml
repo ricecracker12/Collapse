@@ -391,7 +391,7 @@
                                               CornerRadius="14"
                                               SelectedIndex="{x:Bind Graphics_Effects, Mode=TwoWay}"
                                               SelectionChanged="EnforceCustomPreset_ComboBox">
-                                        <ComboBoxItem Content="{x:Bind helper:Locale.Lang._GenshinGameSettingsPage.SpecVeryLow}" /> 
+                                        <ComboBoxItem Content="{x:Bind helper:Locale.Lang._GenshinGameSettingsPage.SpecVeryLow}" />
                                         <!--  Borrow Locale from Genshin Settings for now  -->
                                         <ComboBoxItem Content="{x:Bind helper:Locale.Lang._GameSettingsPage.SpecLow}" />
                                         <ComboBoxItem Content="{x:Bind helper:Locale.Lang._GameSettingsPage.SpecMedium}" />
@@ -465,7 +465,7 @@
                                     <TextBlock Margin="0,0,8,8"
                                                HorizontalAlignment="Left"
                                                Style="{ThemeResource BodyStrongTextBlockStyle}"
-                                               Text="{x:Bind helper:Locale.Lang._ZenlessGameSettingsPage.Graphics_AnisotropicSampling}"
+                                               Text="{x:Bind helper:Locale.Lang._GenshinGameSettingsPage.Graphics_AnisotropicFiltering}"
                                                TextWrapping="WrapWholeWords" />
                                     <ComboBox x:Name="AnisotropicSamplingSelector"
                                               Margin="0,0,16,8"
