@@ -26,7 +26,7 @@ namespace CollapseLauncher.Helper
         internal static bool IsOnTrayEnabled()
         {
             if (!IsInitialized)
-                InvokeGetStatusCommand().GetAwaiter().GetResult();
+                Task.Run(async () => await InvokeGetStatusCommand()).GetAwaiter().GetResult();
 
             return CachedIsOnTrayEnabled;
         }
@@ -34,7 +34,7 @@ namespace CollapseLauncher.Helper
         internal static bool IsEnabled()
         {
             if (!IsInitialized)
-                InvokeGetStatusCommand().GetAwaiter().GetResult();
+                Task.Run(async () => await InvokeGetStatusCommand()).GetAwaiter().GetResult();
 
             return CachedIsEnabled;
         }
@@ -252,7 +252,8 @@ namespace CollapseLauncher.Helper
                 Arguments              = argument,
                 UseShellExecute        = false,
                 RedirectStandardOutput = true,
-                CreateNoWindow         = true
+                CreateNoWindow         = true,
+                CreateNewProcessGroup  = true
             };
 
 #if DEBUG
