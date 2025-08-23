@@ -243,7 +243,8 @@ public partial class HomePage
             if (gamePreset is PluginPresetConfigWrapper { RunGameContext.CanUseGameLaunchApi: true } pluginGamePreset)
             {
                 LogWriteLine("Trying to stop game process from plugin...", LogType.Scheme, true);
-                pluginGamePreset.RunGameContext.KillRunningGame(out _, out _);
+                throw new NotImplementedException();
+                //pluginGamePreset.RunGameContext.KillRunningGame(out _, out _);
             }
             else
             {
