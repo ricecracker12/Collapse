@@ -98,13 +98,13 @@ namespace CollapseLauncher.Helper
         internal static void ToggleTrayEnabled(bool isEnabled)
         {
             CachedIsOnTrayEnabled = isEnabled;
-            InvokeToggleCommand().GetAwaiter().GetResult();
+            Task.Run(async () => await InvokeToggleCommand()).GetAwaiter().GetResult();
         }
 
         internal static void ToggleEnabled(bool isEnabled)
         {
             CachedIsEnabled = isEnabled;
-            InvokeToggleCommand().GetAwaiter().GetResult();
+            Task.Run(async () => await InvokeToggleCommand()).GetAwaiter().GetResult();
         }
 
         private static async Task InvokeToggleCommand()
