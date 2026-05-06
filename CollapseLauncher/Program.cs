@@ -346,7 +346,6 @@ namespace CollapseLauncher
             {
                 CodecManager.Configure(codecs =>
                                        {
-                                           codecs.UseWicCodecs(WicCodecPolicy.BuiltIn);
                                            codecs.UseLibwebp();
                                            codecs.UseLibheif();
                                            codecs.UseLibjxl();
