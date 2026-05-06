@@ -336,6 +336,11 @@ internal static partial class AssetBundleExtension
             throw new NullReferenceException("GameGatewayDefault cannot be empty on the game preset");
         }
 
+#if DEBUG
+        // Assign Dispatcher Logger for Debug
+        KianaDispatch.DebugLogger = ILoggerHelper.GetILogger("KianaDispatch");
+#endif
+
         Exception? lastException = null;
         for (int i = 0; i < presetConfig.GameDispatchArrayURL?.Count; i++)
         {

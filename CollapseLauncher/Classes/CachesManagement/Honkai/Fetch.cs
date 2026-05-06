@@ -36,6 +36,11 @@ namespace CollapseLauncher
                 .SetAllowedDecompression(DecompressionMethods.None)
                 .Create();
 
+#if DEBUG
+            // Assign Dispatcher Logger for Debug
+            KianaDispatch.DebugLogger = ILoggerHelper.GetILogger("KianaDispatch");
+#endif
+
             // Build _gameRepoURL from loading Dispatcher and Gateway
             await BuildGameRepoURL(httpClientNew, token);
 
