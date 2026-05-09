@@ -850,32 +850,21 @@ namespace CollapseLauncher.Pages
             }
         }
 
-        private List<CDNURLProperty> CDNList { get => FallbackCDNUtil.CDNList; }
+        private List<CDNURLProperty> CDNList => FallbackCDNUtil.CDNList;
 
         private int SelectedCDN
         {
-            get
+            get => GetAppConfigValue("CurrentCDN");
+            set
             {
-                int value = GetAppConfigValue("CurrentCDN");
-                return value;
-            }
-        }
+                if (value < 0 ||
+                    value > CDNList.Count - 1)
+                {
+                    return;
+                }
 
-        private void AppCDNSelection_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (e.AddedItems.FirstOrDefault() is not CDNURLProperty asCdnUrlNew)
-            {
-                return;
+                SetAndSaveConfigValue("CurrentCDN", value);
             }
-
-            int indexAt = CDNList.IndexOf(asCdnUrlNew);
-            if (indexAt < 0)
-            {
-                return;
-            }
-
-            SetAppConfigValue("CurrentCDN", indexAt);
-            SaveAppConfig();
         }
 
         private bool IsIncludeGameLogs

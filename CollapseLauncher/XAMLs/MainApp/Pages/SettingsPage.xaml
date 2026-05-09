@@ -1647,7 +1647,7 @@
                                 <RadioButtons x:Name="AppCDNSelection"
                                               ItemsSource="{x:Bind CDNList, Mode=OneWay}"
                                               MaxColumns="3"
-                                              SelectedIndex="{x:Bind SelectedCDN, Mode=OneWay}"
+                                              SelectedIndex="{x:Bind SelectedCDN, Mode=TwoWay}"
                                               SelectionChanged="AppCDNSelection_SelectionChanged">
                                     <RadioButtons.ItemTemplate>
                                         <DataTemplate x:DataType="innerConfig:CDNURLProperty">
