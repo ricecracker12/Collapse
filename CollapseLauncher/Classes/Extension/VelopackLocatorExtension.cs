@@ -168,7 +168,7 @@ namespace CollapseLauncher.Extension
 
                     // Try open the shortcut and check whether this shortcut is actually pointing to
                     // CollapseLauncher.exe file
-                    using ShellLink shellLink = new(thisUserStartMenuShortcut);
+                    ShellLink shellLink = new(thisUserStartMenuShortcut);
                     // Try to get the target path and its filename
                     string shortcutTargetPath = shellLink.Target;
                     if (!shortcutTargetPath.Equals(currentExecutedPath, StringComparison.OrdinalIgnoreCase))

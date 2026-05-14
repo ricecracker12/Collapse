@@ -571,12 +571,11 @@ internal partial class PluginGameInstallWrapper : ProgressBase<PkgVersionPropert
         return new ValueTask<bool>(false);
     }
 
-    [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
     public async ValueTask<bool> UninstallGame()
     {
         if (!ComMarshal<IGameInstaller>.TryCastComObjectAs(_gameInstaller,
-                                                           out IGameUninstaller? asUninstaller,
-                                                           out Exception? castEx))
+                                                            out IGameUninstaller? asUninstaller,
+                                                            out Exception? castEx))
         {
             Logger.LogWriteLine($"The current plugin interface doesn't implement IGameUninstaller. Function will not be called!\r\n{castEx}", LogType.Error, true);
             return false;
