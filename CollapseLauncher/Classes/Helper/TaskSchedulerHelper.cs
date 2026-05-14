@@ -174,7 +174,7 @@ namespace CollapseLauncher.Helper
             Directory.CreateDirectory(iconLocationDir);
             
             // Create ShellLink instance
-            ShellLink shellLink = new();
+            using ShellLink shellLink = new ShellLink();
 
             // If existing icon exist, try open it
             try
