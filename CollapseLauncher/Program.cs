@@ -675,7 +675,7 @@ namespace CollapseLauncher
             return Convert.ToHexStringLower(hash);
         }
 
-        private static string restartedFromPidArgKey = "restartedFromPid";
+        private const string RestartedFromPidArgKey = "restartedFromPid";
 
         public static void ForceRestart()
         {
@@ -684,7 +684,7 @@ namespace CollapseLauncher
             {
                 FileName         = AppExecutablePath,
                 WorkingDirectory = Environment.CurrentDirectory,
-                Arguments        = $"{restartedFromPidArgKey}:{Environment.ProcessId} {string.Join(' ', AppCurrentArgument)}",
+                Arguments        = $"{RestartedFromPidArgKey}:{Environment.ProcessId} {string.Join(' ', AppCurrentArgument)}",
                 UseShellExecute  = true
             });
 
@@ -699,7 +699,7 @@ namespace CollapseLauncher
             }
 
             string firstArg = args[0];
-            if (!firstArg.StartsWith(restartedFromPidArgKey, StringComparison.OrdinalIgnoreCase))
+            if (!firstArg.StartsWith(RestartedFromPidArgKey, StringComparison.OrdinalIgnoreCase))
             {
                 return args;
             }
