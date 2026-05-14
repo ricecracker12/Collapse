@@ -170,7 +170,7 @@
     
     <ItemGroup Condition="'$(PublishAot)' == 'true'">
         <!-- Use additional linker arguments -->
-        <LinkerArg Include="/DEBUG:NONE" />
+        <LinkerArg Include="/DEBUG:NONE /LTCG" />
         <!-- <LinkerArg Include="/LTCG" /> -->
         
         <!-- Region: Libsql.Client -->
@@ -235,9 +235,6 @@
         <DirectPInvoke Include="Lib\waifu2x-ncnn-vulkan.dll" />
         <DirectPInvoke Include="libomp140.x86_64.dll" />
         <NativeLibrary Include="StaticLib\waifu2x-ncnn-vulkan-static.lib" />
-        <!--
-        These libraries are required by waifu2x-ncnn-vulkan to resolve external calls.
-        -->
         <NativeLibrary Include="StaticLib\Waifu2x\ncnn.lib" />
         <NativeLibrary Include="StaticLib\Waifu2x\SPIRV.lib" />
         <NativeLibrary Include="StaticLib\Waifu2x\glslang.lib" />
@@ -254,26 +251,17 @@
         <NativeLibrary Include="StaticLib\libwebpdemux.lib" />
         <DirectPInvoke Include="webpmux" />
         <NativeLibrary Include="StaticLib\libwebpmux.lib" />
-        <!--
-        These libraries are required by libwebp to resolve external calls.
-        -->
         <NativeLibrary Include="StaticLib\libsharpyuv.lib" />
 
         <!-- Region: heif -->
         <DirectPInvoke Include="heif" />
         <NativeLibrary Include="StaticLib\heif.lib" />
-        <!--
-        These libraries are required by jxl to resolve external calls.
-        -->
         <NativeLibrary Include="StaticLib\libdav1d.lib" />
         <NativeLibrary Include="StaticLib\libde265.lib" />
 
         <!-- Region: jxl -->
         <DirectPInvoke Include="jxl" />
         <NativeLibrary Include="StaticLib\jxl.lib" />
-        <!--
-        These libraries are required by jxl to resolve external calls.
-        -->
         <NativeLibrary Include="StaticLib\jxl_cms.lib" />
         <NativeLibrary Include="StaticLib\hwy.lib" />
 
@@ -515,23 +503,6 @@
     </Target>
 
     <Target Name="PostPublish-RemoveFiles" AfterTargets="Publish">
-        <!-- Region: Libsql.Client -->
-        <Delete Files="$(PublishDir)csharp_bindings.dll" Condition="'$(PublishAot)' == 'true'" />
-
-        <!-- Region: waifu2x-ncnn-vulkan -->
-        <Delete Files="$(PublishDir)Lib\waifu2x-ncnn-vulkan.dll" Condition="'$(PublishAot)' == 'true'" />
-        <Delete Files="$(PublishDir)Lib\libomp140.x86_64.dll" Condition="'$(PublishAot)' == 'true'" />
-
-        <!-- Region: Hi3Helper.Throttle -->
-        <!--
-        <Delete Files="$(PublishDir)Lib\Hi3Helper.Throttle.dll" Condition="'$(PublishAot)' == 'true'" />
-        -->
-
-        <!-- Region: libzstd -->
-        <ItemGroup Condition="'$(PublishAot)' == 'true'">
-            <FilesToDelete Include="$(PublishDir)Lib\win-x64\libzstd*" />
-        </ItemGroup>
-
         <!-- Trim unused files and debug symbols -->
         <ItemGroup>
             <FilesToDelete Include="$(PublishDir)*.winmd;" />
@@ -558,11 +529,29 @@
         <Delete Files="$(PublishDir)WindowsAppRuntime.DeploymentExtensions.OneCore.dll" />
         <Delete Files="$(PublishDir)WindowsAppSdk.AppxDeploymentExtensions.Desktop.dll" />
         <Delete Files="$(PublishDir)WindowsAppSdk.AppxDeploymentExtensions.Desktop-EventLog-Instrumentation.dll" />
+        <Delete Files="$(PublishDir)Microsoft.UI.Xaml\Assets\map.html" />
+
+
+        <!-- Region: MagicScaler Decoders -->
         <Delete Files="$(PublishDir)webp.dll" Condition="'$(PublishAot)' == 'true'" />
         <Delete Files="$(PublishDir)webpdemux.dll" Condition="'$(PublishAot)' == 'true'" />
         <Delete Files="$(PublishDir)webpmux.dll" Condition="'$(PublishAot)' == 'true'" />
         <Delete Files="$(PublishDir)jxl.dll" Condition="'$(PublishAot)' == 'true'" />
         <Delete Files="$(PublishDir)heif.dll" Condition="'$(PublishAot)' == 'true'" />
-        <Delete Files="$(PublishDir)Microsoft.UI.Xaml\Assets\map.html" />
+
+        <!-- Region: Libsql.Client -->
+        <Delete Files="$(PublishDir)csharp_bindings.dll" Condition="'$(PublishAot)' == 'true'" />
+
+        <!-- Region: waifu2x-ncnn-vulkan -->
+        <Delete Files="$(PublishDir)Lib\waifu2x-ncnn-vulkan.dll" Condition="'$(PublishAot)' == 'true'" />
+        <Delete Files="$(PublishDir)Lib\libomp140.x86_64.dll" Condition="'$(PublishAot)' == 'true'" />
+
+        <!-- Region: Hi3Helper.Throttle -->
+        <Delete Files="$(PublishDir)Lib\Hi3Helper.Throttle.dll" Condition="'$(PublishAot)' == 'true'" />
+
+        <!-- Region: libzstd -->
+        <ItemGroup Condition="'$(PublishAot)' == 'true'">
+            <FilesToDelete Include="$(PublishDir)Lib\win-x64\libzstd*" />
+        </ItemGroup>
     </Target>
 </Project>
