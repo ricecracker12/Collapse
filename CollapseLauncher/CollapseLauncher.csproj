@@ -129,8 +129,8 @@
         
         <!-- Compilation and Optimization -->
         <Deterministic>true</Deterministic>
-        <IlcOptimizationPreference>Size</IlcOptimizationPreference>
-        <OptimizationPreference>Size</OptimizationPreference>
+        <IlcOptimizationPreference>Speed</IlcOptimizationPreference>
+        <OptimizationPreference>Speed</OptimizationPreference>
         <IlcDisableReflection>false</IlcDisableReflection>
         <IlcDisableSingleFile>true</IlcDisableSingleFile>
         <IlcTrimMetadata>true</IlcTrimMetadata>
