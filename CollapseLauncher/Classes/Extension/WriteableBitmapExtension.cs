@@ -9,29 +9,28 @@ using System;
 #pragma warning disable IDE0130
 
 #nullable enable
-namespace CollapseLauncher.Extension
+namespace CollapseLauncher.Extension;
+
+internal static class WriteableBitmapExtension
 {
-    internal static class WriteableBitmapExtension
+    internal static nint GetBufferPointer(this WriteableBitmap writeableBitmap, out uint length)
     {
-        internal static nint GetBufferPointer(this WriteableBitmap writeableBitmap, out uint length)
+        length = writeableBitmap.PixelBuffer.Length;
+        
+        try
         {
-            length = writeableBitmap.PixelBuffer.Length;
             IBufferByteAccess byteAccess = writeableBitmap.PixelBuffer.AsBufferByteAccess();
-            try
-            {
-                byteAccess.Buffer(out nint bufferP);
-                return bufferP;
-            }
-            finally
-            {
-                if (!ComMarshal<IBufferByteAccess>.TryReleaseComObject(byteAccess, out Exception? ex))
-                {
-                    SentryHelper.ExceptionHandler(ex, SentryHelper.ExceptionType.UnhandledOther);
-                    Logger.LogWriteLine($"Cannot free the instance of IBufferByteAccess from WriteableBitmap\r\n{ex}",
-                                        LogType.Error,
-                                        true);
-                }
-            }
+            byteAccess.Buffer(out nint bufferP);
+            return bufferP;
         }
+        catch (Exception ex)
+        {
+            SentryHelper.ExceptionHandler(ex, SentryHelper.ExceptionType.UnhandledOther);
+            Logger.LogWriteLine($"Cannot free the instance of IBufferByteAccess from WriteableBitmap\r\n{ex}",
+                                LogType.Error,
+                                true);
+        }
+
+        return nint.Zero;
     }
 }
