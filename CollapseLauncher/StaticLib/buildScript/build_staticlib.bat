@@ -12,11 +12,18 @@ set RuntimeLibrary=MultiThreaded
 :: set CXXFLAGS=%LTOArgs% -EHsc
 :: set CFLAGS=%LTOArgs% -EHsc
 :: set LDFLAGS=%LTOArgs% /LTCG
+:: 
 :: Or use the one below if you're using MSVC.
 :: set LTOArgs=
 :: set CXXFLAGS=-EHsc /GL
 :: set CFLAGS=-EHsc /GL
 :: set LDFLAGS=/LTCG /GENPROFILE
+:: 
+:: Or if you wanted to disable LTO either for both of them, use this
+:: set LTOArgs=
+:: set CXXFLAGS=-EHsc
+:: set CFLAGS=-EHsc
+:: set LDFLAGS=
 set LTOArgs=
 set CXXFLAGS=-EHsc
 set CFLAGS=-EHsc
@@ -31,8 +38,8 @@ call :ToolchainTest
 if NOT %errorlevel% == 0 ( goto :EOF )
 
 :: Start building
-call :Build_waifu2x || goto :EOF
-call :Build_libwebp || goto :EOF
+:: call :Build_waifu2x || goto :EOF
+:: call :Build_libwebp || goto :EOF
 call :Build_libheif || goto :EOF
 call :Build_libjxl  || goto :EOF
 call :Build_libzstd || goto :EOF
@@ -69,18 +76,18 @@ goto :COMPLETE
     git fetch --all && git pull --all
     copy /Y ..\patch\openmp\runtime\CMakeLists.txt openmp\runtime\CMakeLists.txt
     cd runtimes
-    set OldCXXFLAGS=%CXXFLAGS%
-    set OldCFLAGS=%CFLAGS%
-    set OldLDFLAGS=%LDFLAGS%
-    set CXXFLAGS=
-    set CFLAGS=
-    set LDFLAGS=
+    :: set OldCXXFLAGS=%CXXFLAGS%
+    :: set OldCFLAGS=%CFLAGS%
+    :: set OldLDFLAGS=%LDFLAGS%
+    :: set CXXFLAGS=
+    :: set CFLAGS=
+    :: set LDFLAGS=
     cmake . %GenericCMAKEParamNoFlagsNoIntOpt% -DENABLE_CHECK_TARGETS=FALSE -DLLVM_ENABLE_RUNTIMES=openmp -DLIBOMP_ENABLE_SHARED=FALSE -B vclatestbuild || goto :ERR
     cd vclatestbuild
     msbuild ALL_BUILD.vcxproj -p:Configuration=%BuildType% /m:%NUMBER_OF_PROCESSORS% || goto :ERR
-    set CXXFLAGS=%OldCXXFLAGS%
-    set CFLAGS=%OldCFLAGS%
-    set LDFLAGS=%OldLDFLAGS%
+    :: set CXXFLAGS=%OldCXXFLAGS%
+    :: set CFLAGS=%OldCFLAGS%
+    :: set LDFLAGS=%OldLDFLAGS%
     move openmp\runtime\src\%BuildType%\libomp.lib.lib openmp\runtime\src\%BuildType%\libomp.lib
     call :CallCopy openmp\runtime\src\%BuildType%\libomp.lib || goto :ERR
     goto :BACKTOROOT
@@ -109,20 +116,20 @@ goto :COMPLETE
     git clone --recursive https://code.videolan.org/videolan/dav1d
     cd dav1d
     git fetch --all && git pull --all
-    set OLDCXXFLAGS=%CXXFLAGS%
-    set OLDCFLAGS=%CFLAGS%
-    set OLDLDFLAGS=%LDFLAGS%
-    set CXXFLAGS=
-    set CFLAGS=
-    set LDFLAGS=
+    :: set OLDCXXFLAGS=%CXXFLAGS%
+    :: set OLDCFLAGS=%CFLAGS%
+    :: set OLDLDFLAGS=%LDFLAGS%
+    :: set CXXFLAGS=
+    :: set CFLAGS=
+    :: set LDFLAGS=
     call :SETCLANGCC
     mkdir build
     cd build
     meson setup .. --wipe --default-library=static || goto :ERR
     ninja
-    set CXXFLAGS=%OLDCXXFLAGS%
-    set CFLAGS=%OLDCFLAGS%
-    set LDFLAGS=%OLDLDFLAGS%
+    :: set CXXFLAGS=%OLDCXXFLAGS%
+    :: set CFLAGS=%OLDCFLAGS%
+    :: set LDFLAGS=%OLDLDFLAGS%
     copy src\libdav1d.a src\libdav1d.lib
     call :CallCopy src\libdav1d.lib || goto :ERR
     call :UNSETCLANGCC
@@ -137,11 +144,13 @@ goto :COMPLETE
     set OLD_CFLAGS=%CFLAGS%
     set CXXFLAGS=%CXXFLAGS% -msse4.1 -mssse3 -msse2
     set CFLAGS=%CFLAGS% -msse4.1 -mssse3 -msse2
+    :: cmake . %GenericCMAKEParamNoFlags% -DBUILD_SHARED_LIBS=0 -DENABLE_SDL=OFF -B vclatestbuild ^
+    :: -DSUPPORTS_SSE4_1=1 -DSUPPORTS_SSSE3=1 -DSUPPORTS_SSE2=1 ^
+    :: -DCMAKE_CXX_FLAGS="%CXXFLAGS%" -DCMAKE_C_FLAGS="%CFLAGS%"
     cmake . %GenericCMAKEParamNoFlags% -DBUILD_SHARED_LIBS=0 -DENABLE_SDL=OFF -B vclatestbuild ^
-    -DSUPPORTS_SSE4_1=1 -DSUPPORTS_SSSE3=1 -DSUPPORTS_SSE2=1 ^
     -DCMAKE_CXX_FLAGS="%CXXFLAGS%" -DCMAKE_C_FLAGS="%CFLAGS%"
     cd vclatestbuild
-    msbuild ALL_BUILD.vcxproj -p:Configuration=%BuildType% /m:%NUMBER_OF_PROCESSORS% || goto :ERR
+    msbuild dec265\dec265.vcxproj -p:Configuration=%BuildType% /m:%NUMBER_OF_PROCESSORS% || goto :ERR
     set CXXFLAGS=%OLD_CXXFLAGS%
     set CFLAGS=%OLD_CFLAGS%
     call :CallCopy libde265\%BuildType%\libde265.lib || goto :ERR
